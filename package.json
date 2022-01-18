@@ -1,0 +1,35 @@
+{
+  "name": "learn.flatland.church",
+  "version": "0.1.0",
+  "description": "A learning platform for Flatland Church.",
+  "main": "dist/index.js",
+  "repository": "https://github.com/flatlandchurch/learn.flatland.church",
+  "author": "Matt McElwee <mubatt@wyopub.com>",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wedgekit build -c",
+    "start": "wedgekit start",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,css,json,md,ts,tsx,cjs}": [
+      "prettier --write"
+    ]
+  },
+  "prettier": "@dmsi/prettier-config",
+  "devDependencies": {
+    "@dmsi/prettier-config": "^1.3.0",
+    "@wedgekit/scripts": "^0.4.4",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.7",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.2.1",
+    "styled-components": "^5.3.3"
+  }
+}
