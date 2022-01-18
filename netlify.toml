@@ -4,3 +4,12 @@ command="yarn build"
 
 [functions]
 directory="functions/"
+
+[dev]
+autoLaunch=true
+publish="dist"
+
+[[redirects]]
+from="/*"
+to="/"
+status=200
