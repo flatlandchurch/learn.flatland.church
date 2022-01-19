@@ -1,7 +1,15 @@
 const cookie = require('cookie');
 const jwt = require('jsonwebtoken');
+const fauna = require('faunadb');
 
 const COOKIE_SECRET = process.env.COOKIE_SECRET;
+
+const q = fauna.query;
+const client = new fauna.Client({
+  secret: process.env.FAUNA_SECRET,
+  domain: 'db.us.fauna.com',
+  scheme: 'https',
+});
 
 const safelyVerify = (token) => {
   try {
@@ -51,11 +59,14 @@ const handler = async (event) => {
   }
 
   const { id } = data;
+  const result = await client.query(q.Get(q.Ref(q.Collection('users'), id)));
+  const { password, ...attributes } = result.data;
 
   response.body = JSON.stringify({
     data: {
       type: 'user',
       id,
+      attributes,
     },
   });
 
