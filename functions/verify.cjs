@@ -50,13 +50,12 @@ const handler = async (event) => {
     return Promise.resolve(response);
   }
 
-  const { id, ...attributes } = data;
+  const { id } = data;
 
   response.body = JSON.stringify({
     data: {
       type: 'user',
       id,
-      attributes,
     },
   });
 

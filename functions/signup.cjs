@@ -1,10 +1,13 @@
 const fauna = require('faunadb');
 const { pbkdf2 } = require('crypto');
 const { promisify } = require('util');
+const cookie = require('cookie');
+const jwt = require('jsonwebtoken');
 
 const hash = promisify(pbkdf2);
 
 const SALT = process.env.SALT;
+const COOKIE_SECRET = process.env.COOKIE_SECRET;
 
 const getMissingFields = (attr) => {
   const fields = ['email', 'firstName', 'lastName', 'password'];
@@ -71,6 +74,13 @@ const handler = async (event) => {
   };
 
   const result = await client.query(q.Create(q.Collection('users'), { data: payload }));
+  const cookieToken = await jwt.sign(
+    {
+      id: result.ref.toJSON()['@ref'].id,
+    },
+    COOKIE_SECRET,
+    { expiresIn: 60 * 60 * 24 * 30 * 6 },
+  );
 
   return Promise.resolve({
     statusCode: 200,
@@ -84,6 +94,12 @@ const handler = async (event) => {
         },
       },
     }),
+    headers: {
+      'set-cookie': cookie.serialize('learn-token', cookieToken, {
+        maxAge: 60 * 60 * 24 * 30 * 6, // ~6 months
+        httpOnly: true,
+      }),
+    },
   });
 };
 
