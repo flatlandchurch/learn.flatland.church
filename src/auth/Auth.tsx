@@ -1,6 +1,8 @@
 import React, { createContext, ReactElement, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type User = {
+  id: string;
   isAdmin: boolean;
   firstName: string;
   lastName: string;
@@ -8,9 +10,14 @@ type User = {
   image: string;
 };
 
+type SignupPayload = Omit<User, 'isAdmin'> & {
+  password: string;
+};
+
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  signup: (payload: SignupPayload) => Promise<void>;
   logout: () => void;
   verify: () => void;
 };
@@ -23,7 +30,6 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = (email: string, password: string) => {
-    console.log({ email, password });
     return fetch('/.netlify/functions/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -40,15 +46,52 @@ const AuthProvider = ({ children }: Props) => {
       },
     })
       .then((d) => d.json())
-      .then((d) => {
-        console.log(d);
+      .then(({ data: { id, attributes } }) => {
+        setUser({
+          id,
+          ...attributes,
+        });
+      });
+  };
+  const signup = (payload: SignupPayload) => {
+    return fetch('/.netlify/functions/signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        data: {
+          type: 'user',
+          attributes: payload,
+        },
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((d) => d.json())
+      .then((res) => {
+        if (res.errors && res.errors.length) {
+          return [res, null];
+        }
+
+        const { id, attributes } = res.data;
+        setUser({
+          id,
+          ...attributes,
+        });
+        return [null, res];
       });
   };
   const logout = () => {};
   const verify = async () => {
-    const isVerified = await fetch('/.netlify/functions/verify').then((d) => d.status !== 400);
+    const res = await fetch('/.netlify/functions/verify');
+    const isVerified = res.status === 200;
     if (!isVerified) {
       setUser(null);
+    } else {
+      const { id, attributes } = (await res.json()).data;
+      setUser({
+        id,
+        ...attributes,
+      });
     }
   };
 
@@ -58,6 +101,7 @@ const AuthProvider = ({ children }: Props) => {
         user,
         login,
         logout,
+        signup,
         verify,
       }}
     >

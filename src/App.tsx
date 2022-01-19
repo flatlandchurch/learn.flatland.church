@@ -5,6 +5,7 @@ import RequireUser from './auth/RequireUser';
 import AuthProvider from './auth/Auth';
 import RequireAdmin from './auth/RequireAdmin';
 import Login from './routes/Login';
+import Signup from './routes/Signup';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<div>Welcome home, sir</div>} />
             <Route path="/login" element={<Login />} />
+            <Route path="/sign-up" element={<Signup />} />
             <Route
               path="/admin"
               element={
