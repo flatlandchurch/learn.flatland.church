@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import Input from '../components/Input';
 import { PrimaryButton } from '../components/Button';
@@ -36,14 +36,43 @@ export const StyledLink = styled(Link)`
   color: #5d05a6;
 `;
 
+export const ErrorContainer = styled.div`
+  width: 100%;
+  display: block;
+  padding: 8px;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 8px;
+  background: #cc3340;
+  color: #fff;
+  margin: 8px 0;
+`;
+
+const ERROR_MESSAGE_MAP = {
+  UserNotFoundError:
+    'A user with that email does not exist in our system. Feel free to sign up above.',
+  InvalidPasswordError: 'Email address and password do not match.',
+};
+
 const Login = () => {
   const auth = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    auth.login(email, password);
+    auth.login(email, password).then(([err]) => {
+      if (err) {
+        setErrors(err.errors.map(({ code }) => ERROR_MESSAGE_MAP[code]));
+      } else {
+        // @ts-ignore
+        const url = location.state && location.state.from ? location.state.from.pathname : '/';
+        navigate(url);
+      }
+    });
   };
 
   return (
@@ -53,6 +82,13 @@ const Login = () => {
         <p>
           Don't have an account yet? <StyledLink to="/sign-up">Sign Up</StyledLink>
         </p>
+        {errors.length > 0 && (
+          <ErrorContainer>
+            {errors.map((e) => (
+              <p key={e}>{e}</p>
+            ))}
+          </ErrorContainer>
+        )}
         <Input
           label="Email Address"
           value={email}

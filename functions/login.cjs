@@ -24,16 +24,7 @@ const catchify = (p) =>
 
 const handler = async (event) => {
   const { data } = JSON.parse(event.body);
-  const { id, attributes } = data;
-
-  /**
-   * TODO:
-   * 1. Fetch user from Fauna
-   * 2. Compare keys
-   * 3. Error handling
-   * 4. Success handling (cookie setting)
-   * 5. Return user resource
-   */
+  const { attributes } = data;
 
   const [err, result] = await catchify(
     client.query(q.Get(q.Match(q.Index('user_email'), attributes.email))),

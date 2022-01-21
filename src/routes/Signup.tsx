@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import Input from '../components/Input';
 import { Container, Video, Overlay } from '../components/Jumbotron';
-import { Submit, Form, StyledLink } from './Login';
+import { Submit, Form, StyledLink, ErrorContainer } from './Login';
 import { useAuth } from '../auth/Auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +17,36 @@ const Row = styled.div`
   }
 `;
 
+const parseParameterError = (details: string) => {
+  const regexpr = /"(.*?)"/;
+  const match = regexpr.exec(details);
+  if (!match) return null;
+  switch (match[1]) {
+    case 'password':
+      return `Password is required.`;
+    case 'email':
+      return `Email address is required.`;
+    case 'firstName':
+      return `First Name is required.`;
+    case 'lastName':
+      return `First Name is required.`;
+    default:
+      return null;
+  }
+};
+
+const ERROR_MESSAGE_MAP = {
+  UserExistsError:
+    'A user with that email address already exists in our system. If you already have an account, login above.',
+};
+
+const parseErrorToMessage = (error: { code: string; details?: string; status: number }) => {
+  if (error.code === 'MissingParameterError') {
+    return parseParameterError(error.details);
+  }
+  return ERROR_MESSAGE_MAP[error.code];
+};
+
 const Signup = () => {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -25,11 +55,13 @@ const Signup = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState([]);
 
   // TODO: report errors
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrors([]);
     auth
       .signup({
         firstName,
@@ -39,7 +71,7 @@ const Signup = () => {
       })
       .then(([err]) => {
         if (err) {
-          console.log(err);
+          setErrors(err.errors.map(parseErrorToMessage).filter((d) => d));
         } else {
           navigate('/');
         }
@@ -53,6 +85,13 @@ const Signup = () => {
         <p>
           Already have an account? <StyledLink to="/login">Login</StyledLink>
         </p>
+        {errors.length > 0 && (
+          <ErrorContainer>
+            {errors.map((e) => (
+              <p key={e}>{e}</p>
+            ))}
+          </ErrorContainer>
+        )}
         <Row>
           <Input
             label="First Name"

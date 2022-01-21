@@ -1,5 +1,6 @@
-import React, { createContext, ReactElement, useContext, useState } from 'react';
+import React, { createContext, ReactElement, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'styled-components';
 
 type User = {
   id: string;
@@ -15,6 +16,7 @@ type SignupPayload = Omit<User, 'isAdmin'> & {
 };
 
 type AuthContextType = {
+  loading: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (payload: SignupPayload) => Promise<void>;
@@ -28,6 +30,35 @@ type Props = { children: ReactElement };
 
 const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const storedUser = window.localStorage.getItem('fc:learn:user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      window.localStorage.setItem('fc:learn:user', JSON.stringify(user));
+    } else {
+      window.localStorage.removeItem('fc:learn:user');
+    }
+  }, [user]);
+
+  const responseHandler = (res) => {
+    if (res.errors && res.errors.length) {
+      return [res, null];
+    }
+
+    const { id, attributes } = res.data;
+    setUser({
+      id,
+      ...attributes,
+    });
+    return [null, res];
+  };
 
   const login = (email: string, password: string) => {
     return fetch('/.netlify/functions/login', {
@@ -46,12 +77,7 @@ const AuthProvider = ({ children }: Props) => {
       },
     })
       .then((d) => d.json())
-      .then(({ data: { id, attributes } }) => {
-        setUser({
-          id,
-          ...attributes,
-        });
-      });
+      .then(responseHandler);
   };
   const signup = (payload: SignupPayload) => {
     return fetch('/.netlify/functions/signup', {
@@ -67,18 +93,7 @@ const AuthProvider = ({ children }: Props) => {
       },
     })
       .then((d) => d.json())
-      .then((res) => {
-        if (res.errors && res.errors.length) {
-          return [res, null];
-        }
-
-        const { id, attributes } = res.data;
-        setUser({
-          id,
-          ...attributes,
-        });
-        return [null, res];
-      });
+      .then(responseHandler);
   };
   const logout = () => {};
   const verify = async () => {
@@ -93,11 +108,17 @@ const AuthProvider = ({ children }: Props) => {
         ...attributes,
       });
     }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    verify();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
+        loading,
         user,
         login,
         logout,

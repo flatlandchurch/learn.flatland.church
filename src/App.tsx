@@ -6,6 +6,8 @@ import AuthProvider from './auth/Auth';
 import RequireAdmin from './auth/RequireAdmin';
 import Login from './routes/Login';
 import Signup from './routes/Signup';
+import Classes from './routes/classes';
+import Class from './routes/class';
 
 const App = () => {
   return (
@@ -39,22 +41,8 @@ const App = () => {
                 </>
               }
             />
-            {/* Class Routes */}
-            <Route path="/classes" element={<div>Hello</div>} />
-            <Route
-              path="/classes/:id"
-              element={
-                <>
-                  {/* @ts-ignore */}
-                  <RequireUser>
-                    <div>Hello</div>
-                  </RequireUser>
-                </>
-              }
-            >
-              <Route path=":sessionID" />
-              <Route path=":sessionID/:contentID" />
-            </Route>
+            <Route path="/classes" element={<Classes />} />
+            <Route path="/classes/:id" element={<Class />} />
           </Routes>
         </AuthProvider>
       </>
