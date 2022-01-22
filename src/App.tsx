@@ -8,6 +8,7 @@ import Login from './routes/Login';
 import Signup from './routes/Signup';
 import Classes from './routes/classes';
 import Class from './routes/class';
+import Admin from './routes/admin/Admin';
 
 const App = () => {
   return (
@@ -25,7 +26,7 @@ const App = () => {
                 <>
                   {/* @ts-ignore */}
                   <RequireAdmin>
-                    <div>Admin</div>
+                    <Admin />
                   </RequireAdmin>
                 </>
               }

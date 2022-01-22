@@ -11,6 +11,7 @@ const ImageContainer = styled.div`
   border: 2px solid #d0d4d7;
   border-radius: 50%;
   overflow: hidden;
+  background: #fff;
 
   svg {
     width: 100%;

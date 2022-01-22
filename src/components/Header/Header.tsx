@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import Profile from './Profile';
+import Menu from './Menu';
 
 const MenuButton = styled.button`
   appearance: none;
@@ -11,8 +12,8 @@ const MenuButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   cursor: pointer;
 `;
 
@@ -40,16 +41,21 @@ type Props = {
 };
 
 const Header = (props: Props) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <HeaderStyled>
-      {!!props.onClassMenuClick ? <div>Menu</div> : <div />}
-      <Row>
-        <Profile />
-        <MenuButton>
-          <span className="material-icons-outlined">menu_open</span>
-        </MenuButton>
-      </Row>
-    </HeaderStyled>
+    <>
+      <HeaderStyled>
+        {!!props.onClassMenuClick ? <div>Menu</div> : <div />}
+        <Row>
+          <Profile />
+          <MenuButton onClick={() => setMenuOpen(true)}>
+            <span className="material-icons-outlined">menu_open</span>
+          </MenuButton>
+        </Row>
+      </HeaderStyled>
+      {menuOpen && <Menu onClose={() => setMenuOpen(false)} />}
+    </>
   );
 };
 
