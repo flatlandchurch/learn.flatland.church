@@ -10,6 +10,7 @@ import Classes from './routes/classes';
 import Class from './routes/class';
 import Admin from './routes/admin/Admin';
 import AdminClasses from './routes/admin/classes';
+import AdminClass from './routes/admin/class';
 
 const App = () => {
   return (
@@ -39,6 +40,28 @@ const App = () => {
                   {/* @ts-ignore */}
                   <RequireAdmin>
                     <AdminClasses />
+                  </RequireAdmin>
+                </>
+              }
+            />
+            <Route
+              path="/admin/classes/new"
+              element={
+                <>
+                  {/* @ts-ignore */}
+                  <RequireAdmin>
+                    <AdminClass new />
+                  </RequireAdmin>
+                </>
+              }
+            />
+            <Route
+              path="/admin/classes/:id"
+              element={
+                <>
+                  {/* @ts-ignore */}
+                  <RequireAdmin>
+                    <AdminClass />
                   </RequireAdmin>
                 </>
               }

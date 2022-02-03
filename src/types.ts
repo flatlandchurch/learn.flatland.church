@@ -29,9 +29,31 @@ export type Unit = {
 export type Content = {
   title: string;
   sequence: number;
+  blocks: Block[];
+};
+
+type Video = {
+  type: 'video';
+  platform: 'youtube' | 'vimeo';
+  videoID: string;
+};
+
+type Markdown = {
+  type: 'markdown';
   content: string;
-} & (
-  | { type: 'text' | 'introduction' }
-  | { type: 'video'; platform: 'youtube' | 'vimeo'; videoID: string }
-  | { type: 'quiz'; quizID: string }
-);
+};
+
+type Heading = {
+  type: 'heading';
+  title: string;
+};
+
+type Quiz = {
+  type: 'quiz';
+  requiredRight: number;
+  skippable: boolean;
+};
+
+export type Block = {
+  id: string;
+} & (Video | Markdown | Heading | Quiz);
