@@ -6,8 +6,8 @@ import { DndProvider } from 'react-dnd';
 import Section from '../../../components/Section';
 import Header from '../../../components/Header';
 import Contents from './Contents';
-import BlockDrag from './BlockDrag';
-import LargeDropZone from './LargeDropZone';
+import BlockDrag from './components/BlockDrag';
+import LargeDropZone from './components/LargeDropZone';
 
 // @ts-ignore
 import test from './test.json';
