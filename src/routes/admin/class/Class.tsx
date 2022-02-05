@@ -5,11 +5,11 @@ import { DndProvider } from 'react-dnd';
 
 import Section from '../../../components/Section';
 import Header from '../../../components/Header';
-import Input from '../../../components/Input';
 import Contents from './Contents';
 import BlockDrag from './BlockDrag';
 import LargeDropZone from './LargeDropZone';
 
+// @ts-ignore
 import test from './test.json';
 
 type Props = {
@@ -92,6 +92,7 @@ const AdminClass = (props: Props) => {
    *     handle adding
    *  2. Add unit
    *  3. Add content
+   *  4. Context provider
    */
 
   return (

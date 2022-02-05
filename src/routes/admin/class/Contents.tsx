@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import ListItem from './components/ListItem';
+
 type Item = {
   title: string;
   id: string;
@@ -21,33 +23,8 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const ListHeaderRow = styled(Row)`
-  padding: 12px 0;
-  border-radius: 8px;
-  background: ${(props) => props.active && '#084cfe'};
-  color: ${(props) => (props.active ? '#fff' : '#242d2f')};
-`;
-
 const AddRow = styled(Row)`
   justify-content: space-between;
-`;
-
-const ListItem = styled.li`
-  margin-bottom: 12px;
-  cursor: pointer;
-  background: ${(props) => props.active && '#084cfe'};
-  color: ${(props) => (props.active ? '#fff' : '#242d2f')};
-  border-radius: 8px;
-  padding: 12px;
-  user-select: none;
-`;
-
-const List = styled.ul`
-  list-style: none;
-
-  ul ${ListItem} {
-    padding-left: 32px;
-  }
 `;
 
 const Button = styled.button`
@@ -73,7 +50,7 @@ const Contents = (props: Props) => {
     props.contents.reduce(
       (acc, item) => ({
         ...acc,
-        [item.title]: true,
+        [item.id]: true,
       }),
       {},
     ),
@@ -81,65 +58,46 @@ const Contents = (props: Props) => {
 
   return (
     <aside>
-      <List>
-        <ListItem
-          key={'_details'}
-          onClick={() => props.onChange('_details')}
-          active={props.active === '_details'}
-        >
-          <Row>
-            <span className="material-icons">info</span>
-            Class Description
-          </Row>
-        </ListItem>
-      </List>
+      <ListItem
+        active={props.active === '_details'}
+        icon="info"
+        title="Class Description"
+        onClick={() => props.onChange('_details')}
+      />
       <AddRow>
         <ContentHeader>Contents</ContentHeader> <Button>+</Button>
       </AddRow>
       {!!props.contents.length && (
-        <List>
+        <div>
           {props.contents.map((item) => (
-            <ListItem role="button" key={item.id}>
-              <ListHeaderRow
-                col={4}
-                tabIndex={0}
+            <>
+              <ListItem
+                active={item.id === props.active}
+                key={item.id}
+                title={item.title}
+                open={expandedItems[item.id]}
                 onClick={() => props.onChange(item.id)}
-                active={props.active === item.id}
-              >
-                <span
-                  role="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpandedItems((s) => ({ ...s, [item.title]: !s[item.title] }));
-                  }}
-                  className="material-icons"
-                >
-                  {expandedItems[item.title] ? 'expand_less' : 'expand_more'}
-                </span>
-                <span className="material-icons">folder</span>
-                {item.title}
-              </ListHeaderRow>
-              {hasChildren(item) && expandedItems[item.title] && (
-                <List>
-                  {item.children.map((child) => (
-                    <ListItem
-                      key={`${item.id}.${child.id}`}
-                      onClick={() => props.onChange(`${item.id}.${child.id}`)}
-                      role="button"
-                      tabIndex={0}
-                      active={props.active === `${item.id}.${child.id}`}
-                    >
-                      <Row>
-                        <span className="material-icons">description</span>
-                        {child.title}
-                      </Row>
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </ListItem>
+                onCollapse={() => setExpandedItems((s) => ({ ...s, [item.id]: !s[item.id] }))}
+                onContext={() => {}}
+              />
+              <>
+                {hasChildren(item) &&
+                  item.children.map((child) => {
+                    const id = `${item.id}.${child.id}`;
+                    return (
+                      <ListItem
+                        active={id === props.active}
+                        key={id}
+                        title={child.title}
+                        onClick={() => props.onChange(id)}
+                        onContext={() => {}}
+                      />
+                    );
+                  })}
+              </>
+            </>
           ))}
-        </List>
+        </div>
       )}
     </aside>
   );
