@@ -1,4 +1,4 @@
-import React, { Ref, useState } from 'react';
+import React, { createRef, Ref, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import ListItem from './components/ListItem';
@@ -49,25 +49,59 @@ const ContextMenu = styled.div`
   display: block;
   position: absolute;
   z-index: 1000;
-  box-shadow: 0px 0.1px 0.1px hsl(var(--shadow-color) / 0.09),
-    0px 0.8px 1.1px -0.1px hsl(var(--shadow-color) / 0.12),
-    0px 1.4px 1.9px -0.3px hsl(var(--shadow-color) / 0.15),
+  box-shadow: 0 0.1px 0.1px hsl(var(--shadow-color) / 0.09),
+    0 0.8px 1.1px -0.1px hsl(var(--shadow-color) / 0.12),
+    0 1.4px 1.9px -0.3px hsl(var(--shadow-color) / 0.15),
     0.1px 2.1px 2.8px -0.4px hsl(var(--shadow-color) / 0.18),
     0.1px 3.1px 4.2px -0.6px hsl(var(--shadow-color) / 0.21),
     0.1px 4.5px 6px -0.7px hsl(var(--shadow-color) / 0.24),
     0.2px 6.4px 8.6px -0.9px hsl(var(--shadow-color) / 0.27),
     0.2px 9.1px 12.2px -1px hsl(var(--shadow-color) / 0.3);
+  border-radius: 8px;
+  width: max-content;
+  background: #fff;
+`;
+
+const MenuButton = styled.button`
+  appearance: none;
+  border: 0;
+  padding: 12px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  font-size: inherit;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+  background: transparent;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #d0d4d7;
+  }
+`;
+
+const DangerMenuButton = styled(MenuButton)`
+  color: #cc3340;
 `;
 
 const hasChildren = (item) => item.children && item.children.length > 0;
 
-type ContextMenu = {
+type ActiveContextMenu = {
   ref: Ref<unknown>;
   type: 'unit' | 'content';
 };
 
+const getPositionStyled = (ref: Ref<unknown>) => {
+  const rect = ref.current.getBoundingClientRect();
+  return {
+    left: rect.right - 24,
+    top: rect.bottom,
+  };
+};
+
 const Contents = (props: Props) => {
-  const [activeContextMenu, setActiveContextMenu] = useState<ContextMenu | null>(null);
+  const menuRef = createRef();
+  const [activeContextMenu, setActiveContextMenu] = useState<ActiveContextMenu | null>(null);
   const [expandedItems, setExpandedItems] = useState(
     props.contents.reduce(
       (acc, item) => ({
@@ -77,6 +111,28 @@ const Contents = (props: Props) => {
       {},
     ),
   );
+
+  useEffect(() => {
+    const cb = (e: MouseEvent) => {
+      if (menuRef && menuRef.current) {
+        if (!menuRef.current.contains(e.target)) {
+          setActiveContextMenu(null);
+        }
+      }
+    };
+    window.addEventListener('click', cb);
+    return () => window.removeEventListener('click', cb);
+  }, [menuRef]);
+
+  useEffect(() => {
+    const cb = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !!activeContextMenu) {
+        setActiveContextMenu(null);
+      }
+    };
+    window.addEventListener('keydown', cb);
+    return () => window.removeEventListener('keydown', cb);
+  }, [activeContextMenu]);
 
   return (
     <aside>
@@ -133,9 +189,11 @@ const Contents = (props: Props) => {
         </div>
       )}
       {!!activeContextMenu && (
-        <ContextMenu>
-          {activeContextMenu.type === 'unit' && <button>Add Content Item</button>}
-          <button>Delete {activeContextMenu.type === 'unit' ? 'Unit' : 'Content Item'}</button>
+        <ContextMenu ref={menuRef} style={getPositionStyled(activeContextMenu.ref)}>
+          {activeContextMenu.type === 'unit' && <MenuButton>Add Content Item</MenuButton>}
+          <DangerMenuButton>
+            Delete {activeContextMenu.type === 'unit' ? 'Unit' : 'Content Item'}
+          </DangerMenuButton>
         </ContextMenu>
       )}
     </aside>
