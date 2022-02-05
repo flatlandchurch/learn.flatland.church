@@ -88,8 +88,6 @@ const AdminClass = (props: Props) => {
   console.log(contents);
 
   /** TODO:
-   *  1. Rewrite the list item components to
-   *     handle adding
    *  2. Add unit
    *  3. Add content
    *  4. Context provider

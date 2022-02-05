@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Ref, IntrinsicElements } from 'react';
 import styled from 'styled-components';
 
 const Item = styled.div`
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   cursor: pointer;
   background: ${(props) => props.active && '#084cfe'};
   color: ${(props) => (props.active ? '#fff' : '#242d2f')};
@@ -44,14 +44,14 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-type Props = React.IntrinsicElements & {
+type Props = IntrinsicElements & {
   active?: boolean;
   icon?: string;
   open?: boolean;
   title: string;
   onClick: () => void;
   onCollapse?: () => void;
-  onContext?: (ref: React.Ref) => void;
+  onContext?: (ref: Ref<unknown>) => void;
 };
 
 const ListItem = (props: Props) => {
