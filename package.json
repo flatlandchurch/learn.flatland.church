@@ -34,6 +34,7 @@
     "faunadb": "^4.4.1",
     "joi": "^17.5.0",
     "jsonwebtoken": "^8.5.1",
+    "klona": "^2.0.5",
     "react": "^17.0.2",
     "react-dnd": "^14.0.5",
     "react-dnd-html5-backend": "^14.1.0",

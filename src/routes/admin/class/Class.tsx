@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
+import { klona } from 'klona';
 
 import Section from '../../../components/Section';
 import Header from '../../../components/Header';
@@ -82,10 +83,23 @@ const AdminClass = (props: Props) => {
   // Fetch class details
   useEffect(() => {}, []);
 
-  // Update db on content change
-  useEffect(() => {}, []);
-
   console.log(contents);
+
+  const addBlock = (type: string, activeItemID: string) => {
+    const [parent, child] = activeItemID.split('.');
+    const clonedContents = klona(contents);
+
+    const parentIdx = clonedContents.findIndex((item) => item.id === parent);
+
+    if (!child) {
+      clonedContents[parentIdx].blocks.push({ type });
+    } else {
+      const childIdx = clonedContents[parentIdx].contents.findIndex((item) => item.id === child);
+      clonedContents[parentIdx].contents[childIdx].blocks.push({ type });
+    }
+
+    setContents(clonedContents);
+  };
 
   /** TODO:
    *  2. Add unit
@@ -110,11 +124,7 @@ const AdminClass = (props: Props) => {
           />
           <div>
             {activeItem !== '_details' && (
-              <LargeDropZone
-                onAdd={(id) => {
-                  setContents((s) => [...s, { type: id }]);
-                }}
-              />
+              <LargeDropZone onAdd={(id) => addBlock(id, activeItem)} />
             )}
           </div>
           {activeItem !== '_details' ? (
